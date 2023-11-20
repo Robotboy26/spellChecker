@@ -1,4 +1,10 @@
 from tqdm import tqdm
+import sys
+
+if len(sys.argv) > 1:
+    fileInput = sys.argv[1]
+else:
+    fileInput = None
 
 with open("words.txt", 'r') as wordsFile:
     words = wordsFile.read().splitlines()
@@ -16,21 +22,14 @@ def unconvertWord(word):
 def convertWord(word):
     output = []
     for letter in word:
-        output.append(str(outList[inList.index(letter)]))
+        try:
+            output.append(str(outList[inList.index(letter)]))
+        except:
+            pass
 
     return "".join(output)
 
-wordsNumbers = {}
-numbersWords = {}
-numbers = []
-for word in tqdm(words, desc="words completed"):
-    converted = convertWord(word)
-    wordsNumbers[word] = converted
-    numbersWords[converted] = word
-    numbers.append(converted)
-
-while True:
-    query = input("type a word wrong\n")
+def check(query):
     if not " " in query:
         if query in words:
             print(f"{query} is spelled correctly")
@@ -51,8 +50,12 @@ while True:
         for query in querys:
             if query in words:
                 print(f"{query} is spelled correctly")
+                outList.append(query)
             else:
-                queryNum = abs(int(convertWord(query)))
+                try:
+                    queryNum = abs(int(convertWord(query)))
+                except:
+                    pass
                 minDiff = 10000000000000000  # set the initial minimum difference
                 minWord = ""  # set the initial closest word
                 for word, num in tqdm(wordsNumbers.items(), desc="find closest word"):  # loop over the dictionary items
@@ -63,3 +66,30 @@ while True:
                         if minDiff == 0:
                             break  # if the difference is 0, found the closest word already and can exit the loop
                 print(f"print {query} is actually spelled {minWord}")
+                outputList.append(minWord)
+
+wordsNumbers = {}
+numbersWords = {}
+numbers = []
+for word in tqdm(words, desc="words completed"):
+    converted = convertWord(word)
+    wordsNumbers[word] = converted
+    numbersWords[converted] = word
+    numbers.append(converted)
+
+outputFile = "output.txt"
+outputList = []
+
+if fileInput != None:
+    query = "".join(open(fileInput, 'r').read().splitlines())
+    check(query)
+
+    with open(outputFile, "w") as outF:
+        outF.write(" ".join(outputList))
+
+else:
+    while True:
+        query = input("type a word wrong\n")
+        check(query)
+
+
